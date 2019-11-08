@@ -195,8 +195,8 @@ namespace BlackJack
                             }
                             else
                             {
-                                Console.WriteLine("BUT the dealer was closer to 21, so you lost!!"):
-						}
+                                Console.WriteLine("BUT the dealer was closer to 21, so you lost!!");
+                            }
                         }
                     }
                 }
