@@ -188,7 +188,7 @@ namespace BlackJack
                             Console.WriteLine("Both you and the dealer hasn't won or busted");
                             int intPlayerHandValue = GetHandValue(playerHand);
                             int intComputerHandValue = GetHandValue(computerHand);
-                            if (intPlayerHandValue == intComputerHandValue)
+                             if (intPlayerHandValue == intComputerHandValue)
                             {
                                 Console.WriteLine("AND you both have the same hand value, so it's a tie!!");
                             }
@@ -265,6 +265,82 @@ namespace BlackJack
         private bool CheckHandForBust(List<string[]> hand)
         {
             return GetHandValue(hand) > 21;
+        }
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+        internal unsafe struct CONSOLE_FONT_INFO_EX
+        {
+            internal uint cbSize;
+            internal uint nFont;
+            internal COORD dwFontSize;
+            internal int FontFamily;
+            internal int FontWeight;
+            internal fixed char FaceName[LF_FACESIZE];
+        }
+        [StructLayout(LayoutKind.Sequential)]
+        internal struct COORD
+        {
+            internal short X;
+            internal short Y;
+
+            internal COORD(short x, short y)
+            {
+                X = x;
+                Y = y;
+            }
+        }
+        private const int STD_OUTPUT_HANDLE = -11;
+        private const int TMPF_TRUETYPE = 4;
+        private const int LF_FACESIZE = 32;
+        private static IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern bool SetCurrentConsoleFontEx(
+            IntPtr consoleOutput,
+            bool maximumWindow,
+            ref CONSOLE_FONT_INFO_EX consoleCurrentFontEx);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern IntPtr GetStdHandle(int dwType);
+
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        static extern int SetConsoleFont(
+            IntPtr hOut,
+            uint dwFontNum
+            );
+        static void Main(string[] args)
+        {
+            SetConsoleFont();
+            int value = 977788899;
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.WriteLine("Price: " + value.ToString("C", CultureInfo.CreateSpecificCulture("fr-FR")));
+
+
+            Console.ReadLine();
+        }
+        public static void SetConsoleFont(string fontName = "Lucida Console")
+        {
+            unsafe
+            {
+                IntPtr hnd = GetStdHandle(STD_OUTPUT_HANDLE);
+                if (hnd != INVALID_HANDLE_VALUE)
+                {
+                    CONSOLE_FONT_INFO_EX info = new CONSOLE_FONT_INFO_EX();
+                    info.cbSize = (uint)Marshal.SizeOf(info);
+
+                    // Set console font to Lucida Console.
+                    CONSOLE_FONT_INFO_EX newInfo = new CONSOLE_FONT_INFO_EX();
+                    newInfo.cbSize = (uint)Marshal.SizeOf(newInfo);
+                    newInfo.FontFamily = TMPF_TRUETYPE;
+                    IntPtr ptr = new IntPtr(newInfo.FaceName);
+                    Marshal.Copy(fontName.ToCharArray(), 0, ptr, fontName.Length);
+
+                    // Get some settings from current font.
+                    newInfo.dwFontSize = new COORD(info.dwFontSize.X, info.dwFontSize.Y);
+                    newInfo.FontWeight = info.FontWeight;
+                    SetCurrentConsoleFontEx(hnd, false, ref newInfo);
+                }
+            }
         }
     }
 }
