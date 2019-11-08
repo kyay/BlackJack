@@ -80,6 +80,8 @@ namespace BlackJack
 
         private void PlayRound()
         {
+            playerHand = new List<string[]>();
+            computerHand = new List<string[]>();
             if (intIndexOfCardOnTop > 42)
             {
                 Shuffle();
@@ -141,6 +143,7 @@ namespace BlackJack
                                     }
                                     if (CheckHandForBust(playerHand))
                                     {
+                                        blnUserBusted = true;
                                         Console.WriteLine("I'm sorry, but your hand is busted, let me check the dealer's hand and get back to you");
                                     }
                                 }
@@ -245,7 +248,7 @@ namespace BlackJack
                 }
                 intTotal += cardValue;
             }
-            if (intTotal <= 10)
+            if (intTotal <= 10 && intNumOfAces >= 1)
             {
                 intTotal += 11;
                 intNumOfAces--;
